@@ -34,3 +34,6 @@ bin/
 ### Caches with generate elf file ###
 src/build/ninja-arm
 src/build/ninja-arm64
+
+### C file for reference
+src/elf.h

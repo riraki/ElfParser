@@ -19,7 +19,12 @@ typealias Elf64_Xword = ULong
 typealias Elf64_Section = UShort
 
 // typedef	int64_t  Elf64_Sxword;
-typealias Elf64_Sxword = ULong
+typealias Elf64_Sxword = Long
+
+
+
+/* GNU-style hash table with xlat.  */
+const val DT_MIPS_NUM = 0x37
 
 
 
@@ -144,6 +149,94 @@ const val STT_HIPROC = 15           /* End of processor-specific */
 
 
 
+/* Legal values for d_tag (dynamic entry type). */
+const val DT_NULL = 0L                 // Marks end of dynamic section
+const val DT_NEEDED = 1L               // Name of needed library
+const val DT_PLTRELSZ = 2L             // Size in bytes of PLT relocs
+const val DT_PLTGOT = 3L               // Processor defined value
+const val DT_HASH = 4L                 // Address of symbol hash table
+const val DT_STRTAB = 5L               // Address of string table
+const val DT_SYMTAB = 6L               // Address of symbol table
+const val DT_RELA = 7L                 // Address of Rela relocs
+const val DT_RELASZ = 8L               // Total size of Rela relocs
+const val DT_RELAENT = 9L              // Size of one Rela reloc
+const val DT_STRSZ = 10L               // Size of string table
+const val DT_SYMENT = 11L              // Size of one symbol table entry
+const val DT_INIT = 12L                // Address of init function
+const val DT_FINI = 13L                // Address of termination function
+const val DT_SONAME = 14L              // Name of shared object
+const val DT_RPATH = 15L               // Library search path (deprecated)
+const val DT_SYMBOLIC = 16L            // Start symbol search here
+const val DT_REL = 17L                 // Address of Rel relocs
+const val DT_RELSZ = 18L               // Total size of Rel relocs
+const val DT_RELENT = 19L              // Size of one Rel reloc
+const val DT_PLTREL = 20L              // Type of reloc in PLT
+const val DT_DEBUG = 21L               // For debugging; unspecified
+const val DT_TEXTREL = 22L             // Reloc might modify .text
+const val DT_JMPREL = 23L              // Address of PLT relocs
+const val DT_BIND_NOW = 24L            // Process relocations of object
+const val DT_INIT_ARRAY = 25L          // Array with addresses of init fct
+const val DT_FINI_ARRAY = 26L          // Array with addresses of fini fct
+const val DT_INIT_ARRAYSZ = 27L        // Size in bytes of DT_INIT_ARRAY
+const val DT_FINI_ARRAYSZ = 28L        // Size in bytes of DT_FINI_ARRAY
+const val DT_RUNPATH = 29L             // Library search path
+const val DT_FLAGS = 30L               // Flags for the object being loaded
+const val DT_ENCODING = 32L            // Start of encoded range
+const val DT_PREINIT_ARRAY = 32L       // Array with addresses of preinit fct
+const val DT_PREINIT_ARRAYSZ = 33L     // Size in bytes of DT_PREINIT_ARRAY
+const val DT_SYMTAB_SHNDX = 34L        // Address of SYMTAB_SHNDX section
+const val DT_RELRSZ = 35L              // Total size of RELR relative relocations
+const val DT_RELR = 36L                // Address of RELR relative relocations
+const val DT_RELRENT = 37L             // Size of one RELR relative relocaction
+const val DT_NUM = 38L                 // Number used
+const val DT_LOOS = 0x6000000dL        // Start of OS-specific
+const val DT_HIOS = 0x6ffff000L        // End of OS-specific
+const val DT_LOPROC = 0x70000000L      // Start of processor-specific
+const val DT_HIPROC = 0x7fffffffL      // End of processor-specific
+
+// DT_* entries which fall between DT_VALRNGHI & DT_VALRNGLO
+const val DT_VALRNGLO = 0x6ffffd00L
+const val DT_GNU_PRELINKED = 0x6ffffdf5L   // Prelinking timestamp
+const val DT_GNU_CONFLICTSZ = 0x6ffffdf6L  // Size of conflict section
+const val DT_GNU_LIBLISTSZ = 0x6ffffdf7L   // Size of library list
+const val DT_CHECKSUM = 0x6ffffdf8L
+const val DT_PLTPADSZ = 0x6ffffdf9L
+const val DT_MOVEENT = 0x6ffffdfaL
+const val DT_MOVESZ = 0x6ffffdfbL
+const val DT_FEATURE_1 = 0x6ffffdfcL     // Feature selection (DTF_*)
+const val DT_POSFLAG_1 = 0x6ffffdfdL     // Flags for DT_* entries
+const val DT_SYMINSZ = 0x6ffffdfeL     // Size of syminfo table (in bytes)
+const val DT_SYMINENT = 0x6ffffdffL    // Entry size of syminfo
+const val DT_VALRNGHI = 0x6ffffdffL
+
+// DT_* entries which fall between DT_ADDRRNGHI & DT_ADDRRNGLO
+const val DT_ADDRRNGLO = 0x6ffffe00L
+const val DT_GNU_HASH = 0x6ffffef5L    // GNU-style hash table
+const val DT_TLSDESC_PLT = 0x6ffffef6L
+const val DT_TLSDESC_GOT = 0x6ffffef7L
+const val DT_GNU_CONFLICT = 0x6ffffef8L  // Start of conflict section
+const val DT_GNU_LIBLIST = 0x6ffffef9L   // Library list
+const val DT_CONFIG = 0x6ffffefaL      // Configuration information
+const val DT_DEPAUDIT = 0x6ffffefbL    // Dependency auditing
+const val DT_AUDIT = 0x6ffffefcL       // Object auditing
+const val DT_PLTPAD = 0x6ffffefdL      // PLT padding
+const val DT_MOVETAB = 0x6ffffefeL     // Move table
+const val DT_SYMINFO = 0x6ffffeffL     // Syminfo table
+const val DT_ADDRRNGHI = 0x6ffffeffL
+
+// Versioning entry types and GNU extensions
+const val DT_VERSYM = 0x6ffffff0L
+const val DT_RELACOUNT = 0x6ffffff9L
+const val DT_RELCOUNT = 0x6ffffffaL
+const val DT_FLAGS_1 = 0x6ffffffbL     // State flags
+const val DT_VERDEF = 0x6ffffffcL      // Address of version definition table
+const val DT_VERDEFNUM = 0x6ffffffdL   // Number of version definitions
+const val DT_VERNEED = 0x6ffffffeL     // Address of table with needed versions
+const val DT_VERNEEDNUM = 0x6fffffffL  // Number of needed versions
+
+// Sun machine-independent extensions in processor-specific range
+const val DT_AUXILIARY = 0x7ffffffdL   // Shared object to load before self
+const val DT_FILTER = 0x7fffffffL      // Shared object to get values from
 
 
 

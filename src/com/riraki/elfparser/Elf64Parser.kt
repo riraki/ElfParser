@@ -177,12 +177,23 @@ object Elf64Parser {
         // 校验节名称和节类型
         val sectionName = elf64_shdr.getName()
         if (sectionName != ".dynamic" || elf64_shdr.sh_type != SHT_DYNAMIC) {
-            throw IllegalArgumentException("Invalid section for symbol table: $sectionName")
+            throw IllegalArgumentException("Invalid section for .dynamic: $sectionName")
         }
 
-        // 检查是否包含 SHF_ALLOC 标志
-        if ((elf64_shdr.sh_flags and SHF_ALLOC) == 0uL || (elf64_shdr.sh_flags and SHF_WRITE) == 0uL) {
-            throw IllegalArgumentException("Symbol table section must have SHF_ALLOC and SHF_WRITE flag set.")
+        // 检查是否包含 SHF_ALLOC 标志（.dynamic 运行时必须加载进内存）
+        if ((elf64_shdr.sh_flags and SHF_ALLOC) == 0uL) {
+            throw IllegalArgumentException("Dynamic section must have SHF_ALLOC flag set.")
+        }
+
+        return BufferedInputStream(elf64File.inputStream()).use { inputStream ->
+            inputStream.skipFully(elf64_shdr.sh_offset.toLong())
+
+            List((elf64_shdr.sh_size / elf64_shdr.sh_entsize).toInt()) {
+                Elf64_Dyn(
+                    ParseUtils.readLongFromInputStream(inputStream),
+                    ParseUtils.readULongFromInputStream(inputStream)
+                )
+            }
         }
     }
 

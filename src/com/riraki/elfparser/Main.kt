@@ -6,7 +6,7 @@ class Main {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            val file = File("unidbg-android/src/test/java/com/guozilu/class0607", "libnative-lib-arm64-v8a.so")
+            val file = File("src", "libnative-lib-arm64-v8a.so")
             val elf64_ehdr: Elf64_Ehdr = Elf64Parser.readElfHeader(file)
             println(elf64_ehdr)
             val elf64_program_headers = Elf64Parser.readProgramHeaders(file)
