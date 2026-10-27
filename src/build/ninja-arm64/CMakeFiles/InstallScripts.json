@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/ignite/CodeContent/Projects/ElfParser/src/build/ninja-arm64/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
