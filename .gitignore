@@ -30,3 +30,7 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### Caches with generate elf file ###
+src/build/ninja-arm
+src/build/ninja-arm64

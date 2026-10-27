@@ -1,3 +1,0 @@
-/home/ignite/CodeContent/Projects/ElfParser/src/build/ninja-arm/CMakeFiles/native-lib-armeabi-v7a.dir
-/home/ignite/CodeContent/Projects/ElfParser/src/build/ninja-arm/CMakeFiles/edit_cache.dir
-/home/ignite/CodeContent/Projects/ElfParser/src/build/ninja-arm/CMakeFiles/rebuild_cache.dir

@@ -1,3 +1,0 @@
-/home/ignite/CodeContent/Projects/ElfParser/src/build/ninja-arm64/CMakeFiles/native-lib-arm64-v8a.dir
-/home/ignite/CodeContent/Projects/ElfParser/src/build/ninja-arm64/CMakeFiles/edit_cache.dir
-/home/ignite/CodeContent/Projects/ElfParser/src/build/ninja-arm64/CMakeFiles/rebuild_cache.dir
