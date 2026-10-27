@@ -185,13 +185,16 @@ object Elf64Parser {
             throw IllegalArgumentException("Dynamic section must have SHF_ALLOC flag set.")
         }
 
+        val dynamicString: String = readDynamicString(elf64File)
+
         return BufferedInputStream(elf64File.inputStream()).use { inputStream ->
             inputStream.skipFully(elf64_shdr.sh_offset.toLong())
 
             List((elf64_shdr.sh_size / elf64_shdr.sh_entsize).toInt()) {
                 Elf64_Dyn(
                     ParseUtils.readLongFromInputStream(inputStream),
-                    ParseUtils.readULongFromInputStream(inputStream)
+                    ParseUtils.readULongFromInputStream(inputStream),
+                    dynamicString
                 )
             }
         }
