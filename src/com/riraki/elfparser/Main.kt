@@ -21,6 +21,11 @@ class Main {
             elf64_dynamic_sections.forEach { elf64_dynamic_section ->
                 println(elf64_dynamic_section)
             }
+
+            // sh_offset=1448, sh_size=72, sh_entsize=24
+
+
+            // sh_offset=1520, sh_size=168, sh_entsize=24
         }
     }
 }
