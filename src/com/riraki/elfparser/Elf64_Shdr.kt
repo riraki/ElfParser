@@ -78,6 +78,10 @@ data class Elf64_Shdr(
             SHT_HIPROC -> "SHT_HIPROC"
             SHT_LOUSER -> "SHT_LOUSER"
             SHT_HIUSER -> "SHT_HIUSER"
+            SHT_ANDROID_RELR -> "SHT_ANDROID_RELR"
+            SHT_ANDROID_REL -> "SHT_ANDROID_REL"
+            SHT_ANDROID_RELA -> "SHT_ANDROID_RELA"
+            SHT_RISCV_ATTRIBUTES -> "SHT_RISCV_ATTRIBUTES"
             else -> "SHT_UNKNOWN($sh_type)"
         }
     }

@@ -115,6 +115,19 @@ data class Elf64_Dyn(
             DT_VERNEEDNUM -> "DT_VERNEEDNUM"
             DT_AUXILIARY -> "DT_AUXILIARY"
             DT_FILTER -> "DT_FILTER"
+            DT_ANDROID_RELR -> "DT_ANDROID_RELR"
+            DT_ANDROID_RELRSZ -> "DT_ANDROID_RELRSZ"
+            DT_ANDROID_RELRENT -> "DT_ANDROID_RELRENT"
+            DT_ANDROID_RELRCOUNT -> "DT_ANDROID_RELRCOUNT"
+            DT_ANDROID_REL -> "DT_ANDROID_REL"
+            DT_ANDROID_RELSZ -> "DT_ANDROID_RELSZ"
+            DT_ANDROID_RELA -> "DT_ANDROID_RELA"
+            DT_ANDROID_RELASZ -> "DT_ANDROID_RELASZ"
+            DT_AARCH64_MEMTAG_MODE -> "DT_AARCH64_MEMTAG_MODE"
+            DT_AARCH64_MEMTAG_HEAP -> "DT_AARCH64_MEMTAG_HEAP"
+            DT_AARCH64_MEMTAG_STACK -> "DT_AARCH64_MEMTAG_STACK"
+            DT_AARCH64_MEMTAG_GLOBALS -> "DT_AARCH64_MEMTAG_GLOBALS"
+            DT_AARCH64_MEMTAG_GLOBALSSZ -> "DT_AARCH64_MEMTAG_GLOBALSSZ"
             else -> "DT_UNKNOWN($d_tag)"
         }
     }
@@ -124,7 +137,7 @@ data class Elf64_Dyn(
      */
     private fun unString(): String {
         return if (isPointerTag()) {
-            FormatHelpers.toHexString(d_tag)
+            FormatHelpers.toHexString(d_un)
         }
         else {
             /**
@@ -136,12 +149,105 @@ data class Elf64_Dyn(
              *     其余情况认为是通用数值
              */
             when (d_tag) {
-                DT_NEEDED -> ""
-                DT_STRSZ -> FormatHelpers.toHexString(d_tag)
-                DT_SYMENT -> d_tag.toString()
-                DT_FLAGS -> ""
-                else -> ""
+                DT_NEEDED, DT_SONAME -> getDynamicStringWithOffset(d_un.toInt())
+                DT_STRSZ -> FormatHelpers.toHexString(d_un)
+                DT_SYMENT -> FormatHelpers.toHexString(d_un)
+                DT_FLAGS -> getUnStringWithFlags()
+                DT_FLAGS_1 -> getUnStringWithFlags_1()
+                else -> FormatHelpers.toHexString(d_un)
             }
+        }
+    }
+
+    /**
+     * 从 DynamicString 也就是 .dynstr 的字符串的指定偏移处，获取字符串，直到遇到 \0（\u0000）为止
+     * @param offset 要从 .dynstr 中获取字符串的起始偏移
+     * @return 返回获取到的字符串
+     */
+    private fun getDynamicStringWithOffset(offset: Int): String {
+        if (offset < 0) {
+            throw IllegalArgumentException("Invalid offset for .dynstr: $offset!")
+        }
+        if (dynamicString == null) {
+            throw IllegalArgumentException("Invalid .dynstr value is null!")
+        }
+
+        val startIndex: Int = offset
+        val endIndex = dynamicString.indexOf('\u0000', startIndex)
+        if (endIndex == -1) {
+            throw IllegalStateException("Invalid dynamic string: missing null terminator at offset $startIndex")
+        }
+
+        return dynamicString.substring(startIndex, endIndex)
+    }
+
+    /**
+     * 当 d_un 被解释为数值的时候，并且 d_tag 为 DT_FLAGS 时，用来把 d_un 也就是 d_val 转化成其值对应的字符串
+     * @return 转化之后的字符串
+     */
+    private fun getUnStringWithFlags(): String {
+        if (isValueTag().not()) {
+            throw UnsupportedOperationException("Cannot execute this operation When d_un is interpreted d_pointer!")
+        }
+        if (d_tag != DT_FLAGS) {
+            throw UnsupportedOperationException("Cannot execute this operation When d_tag is not DT_FLAGS!")
+        }
+
+        return when (d_un) {
+            DF_ORIGIN -> "DF_ORIGIN"
+            DF_SYMBOLIC -> "DF_SYMBOLIC"
+            DF_TEXTREL -> "DF_TEXTREL"
+            DF_BIND_NOW -> "DF_BIND_NOW"
+            DF_STATIC_TLS -> "DF_STATIC_TLS"
+            else -> "DF_UNKNOWN($d_un)"
+        }
+    }
+
+    /**
+     * 当 d_un 被解释为数值的时候，并且 d_tag 为 DT_FLAGS_1 时，用来把 d_un 也就是 d_val 转化成其值对应的字符串
+     * @return 转化之后的字符串
+     */
+    private fun getUnStringWithFlags_1(): String {
+        if (isValueTag().not()) {
+            throw UnsupportedOperationException("Cannot execute this operation When d_un is interpreted d_pointer!")
+        }
+        if (d_tag != DT_FLAGS_1) {
+            throw UnsupportedOperationException("Cannot execute this operation When d_tag is not DT_FLAGS_1!")
+        }
+
+        return when (d_un) {
+            DF_1_NOW -> "DF_1_NOW"
+            DF_1_GLOBAL -> "DF_1_GLOBAL"
+            DF_1_GROUP -> "DF_1_GROUP"
+            DF_1_NODELETE -> "DF_1_NODELETE"
+            DF_1_LOADFLTR -> "DF_1_LOADFLTR"
+            DF_1_INITFIRST -> "DF_1_INITFIRST"
+            DF_1_NOOPEN -> "DF_1_NOOPEN"
+            DF_1_ORIGIN -> "DF_1_ORIGIN"
+            DF_1_DIRECT -> "DF_1_DIRECT"
+            DF_1_TRANS -> "DF_1_TRANS"
+            DF_1_INTERPOSE -> "DF_1_INTERPOSE"
+            DF_1_NODEFLIB -> "DF_1_NODEFLIB"
+            DF_1_NODUMP -> "DF_1_NODUMP"
+            DF_1_CONFALT -> "DF_1_CONFALT"
+            DF_1_ENDFILTEE -> "DF_1_ENDFILTEE"
+            DF_1_DISPRELDNE -> "DF_1_DISPRELDNE"
+            DF_1_DISPRELPND -> "DF_1_DISPRELPND"
+            DF_1_NODIRECT -> "DF_1_NODIRECT"
+            DF_1_IGNMULDEF -> "DF_1_IGNMULDEF"
+            DF_1_NOKSYMS -> "DF_1_NOKSYMS"
+            DF_1_NOHDR -> "DF_1_NOHDR"
+            DF_1_EDITED -> "DF_1_EDITED"
+            DF_1_NORELOC -> "DF_1_NORELOC"
+            DF_1_SYMINTPOSE -> "DF_1_SYMINTPOSE"
+            DF_1_GLOBAUDIT -> "DF_1_GLOBAUDIT"
+            DF_1_SINGLETON -> "DF_1_SINGLETON"
+            DF_1_STUB -> "DF_1_STUB"
+            DF_1_PIE -> "DF_1_PIE"
+            DF_1_KMOD -> "DF_1_KMOD"
+            DF_1_WEAKFILTER -> "DF_1_WEAKFILTER"
+            DF_1_NOCOMMON -> "DF_1_NOCOMMON"
+            else -> "DF_1_UNKNOWN($d_un)"
         }
     }
 
@@ -189,9 +295,9 @@ data class Elf64_Dyn(
                 , DT_VERSYM, DT_VERDEF, DT_VERNEED -> true
             // 其余标签中，带有 SZ 的
             DT_NEEDED, DT_PLTRELSZ, DT_RELASZ, DT_STRSZ, DT_RELSZ, DT_INIT_ARRAYSZ, DT_FINI_ARRAYSZ, DT_PREINIT_ARRAYSZ
-                , DT_RELRSZ -> false
+                , DT_RELRSZ, DT_ANDROID_RELRSZ, DT_ANDROID_RELSZ, DT_ANDROID_RELASZ, DT_AARCH64_MEMTAG_GLOBALSSZ -> false
             // 其余标签中，带有 ENT 的
-            DT_RELAENT, DT_SYMENT, DT_RELENT, DT_RELRENT -> false
+            DT_RELAENT, DT_SYMENT, DT_RELENT, DT_RELRENT, DT_ANDROID_RELRENT -> false
 
             // 规则三（其余所有）：
             else -> false

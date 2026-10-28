@@ -37,3 +37,4 @@ src/build/ninja-arm64
 
 ### C file for reference
 src/elf.h
+src/linux_elf.h

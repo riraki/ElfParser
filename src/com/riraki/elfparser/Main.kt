@@ -7,6 +7,7 @@ class Main {
         @JvmStatic
         fun main(args: Array<String>) {
             val file = File("src", "libnative-lib-arm64-v8a.so")
+            // val file = File("/home/ignite/Desktop/android_sys_libs/android13/com.android.art/lib64", "libart.so")
             val elf64_ehdr: Elf64_Ehdr = Elf64Parser.readElfHeader(file)
             println(elf64_ehdr)
             val elf64_program_headers = Elf64Parser.readProgramHeaders(file)
@@ -16,7 +17,10 @@ class Main {
             val elf64_dynsym_sections = Elf64Parser.readDynsymSections(file)
             println(elf64_dynsym_sections)
             val elf64_dynamic_sections = Elf64Parser.readDynamicSections(file)
-            println(elf64_dynamic_sections)
+            // println(elf64_dynamic_sections)
+            elf64_dynamic_sections.forEach { elf64_dynamic_section ->
+                println(elf64_dynamic_section)
+            }
         }
     }
 }

@@ -23,11 +23,6 @@ typealias Elf64_Sxword = Long
 
 
 
-/* GNU-style hash table with xlat.  */
-const val DT_MIPS_NUM = 0x37
-
-
-
 /* Legal values for p_type (segment type).  */
 const val PT_NULL = 0u                      /* Program header table entry unused */
 const val PT_LOAD = 1u                      /* Loadable program segment */
@@ -96,6 +91,12 @@ const val SHT_LOPROC = 0x70000000u          /* Start of processor-specific */
 const val SHT_HIPROC = 0x7fffffffu          /* End of processor-specific */
 const val SHT_LOUSER = 0x80000000u          /* Start of application-specific */
 const val SHT_HIUSER = 0xffffffffu          /* End of application-specific */
+
+const val SHT_ANDROID_RELR = 0x6fffff00u
+const val SHT_ANDROID_REL = 0x60000001u
+const val SHT_ANDROID_RELA = 0x60000002u
+
+const val SHT_RISCV_ATTRIBUTES = 0x70000003u
 
 
 
@@ -237,6 +238,67 @@ const val DT_VERNEEDNUM = 0x6fffffffL  // Number of needed versions
 // Sun machine-independent extensions in processor-specific range
 const val DT_AUXILIARY = 0x7ffffffdL   // Shared object to load before self
 const val DT_FILTER = 0x7fffffffL      // Shared object to get values from
+
+const val DT_ANDROID_RELR = 0x6fffe000L
+const val DT_ANDROID_RELRSZ = 0x6fffe001L
+const val DT_ANDROID_RELRENT = 0x6fffe003L
+const val DT_ANDROID_RELRCOUNT = 0x6fffe005L
+const val DT_ANDROID_REL = 0x6000000fL // DT_LOOS + 2
+const val DT_ANDROID_RELSZ = 0x60000010L // DT_LOOS + 3
+const val DT_ANDROID_RELA = 0x60000011L // DT_LOOS + 4
+const val DT_ANDROID_RELASZ = 0x60000012L // DT_LOOS + 5
+
+const val DT_AARCH64_MEMTAG_MODE = 0x70000009L
+const val DT_AARCH64_MEMTAG_HEAP = 0x7000000bL
+const val DT_AARCH64_MEMTAG_STACK = 0x7000000cL
+const val DT_AARCH64_MEMTAG_GLOBALS = 0x7000000dL
+const val DT_AARCH64_MEMTAG_GLOBALSSZ = 0x7000000fL
+
+
+
+/* Values of `d_un.d_val' in the DT_FLAGS entry.  */
+const val DF_ORIGIN = 0x00000001UL      /* Object may use DF_ORIGIN */
+const val DF_SYMBOLIC = 0x00000002UL    /* Symbol resolutions starts here */
+const val DF_TEXTREL = 0x00000004UL     /* Object contains text relocations */
+const val DF_BIND_NOW = 0x00000008UL    /* No lazy binding for this object */
+const val DF_STATIC_TLS = 0x00000010UL  /* Module uses the static TLS model */
+
+
+
+/* State flags selectable in the `d_un.d_val' element of the DT_FLAGS_1
+   entry in the dynamic section.  */
+const val DF_1_NOW = 0x00000001UL           /* Set RTLD_NOW for this object.  */
+const val DF_1_GLOBAL = 0x00000002UL        /* Set RTLD_GLOBAL for this object.  */
+const val DF_1_GROUP = 0x00000004UL         /* Set RTLD_GROUP for this object.  */
+const val DF_1_NODELETE = 0x00000008UL      /* Set RTLD_NODELETE for this object.*/
+const val DF_1_LOADFLTR = 0x00000010UL      /* Trigger filtee loading at runtime.*/
+const val DF_1_INITFIRST = 0x00000020UL     /* Set RTLD_INITFIRST for this object*/
+const val DF_1_NOOPEN = 0x00000040UL        /* Set RTLD_NOOPEN for this object.  */
+const val DF_1_ORIGIN = 0x00000080UL        /* $ORIGIN must be handled.  */
+const val DF_1_DIRECT = 0x00000100UL        /* Direct binding enabled.  */
+const val DF_1_TRANS = 0x00000200UL
+const val DF_1_INTERPOSE = 0x00000400UL     /* Object is used to interpose.  */
+const val DF_1_NODEFLIB = 0x00000800UL      /* Ignore default lib search path.  */
+const val DF_1_NODUMP = 0x00001000UL        /* Object can't be dldump'ed.  */
+const val DF_1_CONFALT = 0x00002000UL       /* Configuration alternative created.*/
+const val DF_1_ENDFILTEE = 0x00004000UL     /* Filtee terminates filters search. */
+const val DF_1_DISPRELDNE = 0x00008000UL    /* Disp reloc applied at build time. */
+const val DF_1_DISPRELPND = 0x00010000UL    /* Disp reloc applied at run-time.  */
+const val DF_1_NODIRECT = 0x00020000UL      /* Object has no-direct binding. */
+const val DF_1_IGNMULDEF = 0x00040000UL
+const val DF_1_NOKSYMS = 0x00080000UL
+const val DF_1_NOHDR = 0x00100000UL
+const val DF_1_EDITED = 0x00200000UL        /* Object is modified after built.  */
+const val DF_1_NORELOC = 0x00400000UL
+const val DF_1_SYMINTPOSE = 0x00800000UL    /* Object has individual interposers.  */
+const val DF_1_GLOBAUDIT = 0x01000000UL     /* Global auditing required.  */
+const val DF_1_SINGLETON = 0x02000000UL     /* Singleton symbols are used.  */
+const val DF_1_STUB = 0x04000000UL
+const val DF_1_PIE = 0x08000000UL
+const val DF_1_KMOD = 0x10000000UL
+const val DF_1_WEAKFILTER = 0x20000000UL
+const val DF_1_NOCOMMON = 0x40000000UL
+
 
 
 
