@@ -11,8 +11,8 @@ package com.riraki.elfparser
  * 如果被解释为 d_ptr，那它就是一个虚拟内存地址
  *
  * @param dynamicString
- * 这个参数用来在 d_un 被解释成数值并且 d_tag 为 DT_NEEDED 时，用作获取其依赖库的名称
- * 其余时刻，该参数将会被忽略
+ * 这个参数用来在 d_un 被解释成数值并且 d_tag 为 DT_NEEDED 或 DT_SONAME 时，用作获取其依赖库的名称
+ * 如果 d_tag 不为其中之一，那么这个参数将不会被使用，如果不想获取依赖库名称，那么可以传入 null
  */
 data class Elf64_Dyn(
     val d_tag: Elf64_Sxword,
@@ -149,7 +149,7 @@ data class Elf64_Dyn(
              *     其余情况认为是通用数值
              */
             when (d_tag) {
-                DT_NEEDED, DT_SONAME -> getDynamicStringWithOffset(d_un.toInt())
+                DT_NEEDED, DT_SONAME -> getDependencyLibraryName()
                 DT_STRSZ -> FormatHelpers.toHexString(d_un)
                 DT_SYMENT -> FormatHelpers.toHexString(d_un)
                 DT_FLAGS -> getUnStringWithFlags()
@@ -160,25 +160,24 @@ data class Elf64_Dyn(
     }
 
     /**
-     * 从 DynamicString 也就是 .dynstr 的字符串的指定偏移处，获取字符串，直到遇到 \0（\u0000）为止
-     * @param offset 要从 .dynstr 中获取字符串的起始偏移
+     * 从 DynamicString 也就是 .dynstr 的字符串的 d_un 偏移处，获取字符串，直到遇到 \0（\u0000）为止
+     * 这个获取到的字符串就是依赖库名称
+     * 如果 dynamicString 为 null，代表不需要获取名称，那么这个时候就直接把 d_un 转化成 16 进制字符串返回
      * @return 返回获取到的字符串
      */
-    private fun getDynamicStringWithOffset(offset: Int): String {
-        if (offset < 0) {
-            throw IllegalArgumentException("Invalid offset for .dynstr: $offset!")
-        }
-        if (dynamicString == null) {
-            throw IllegalArgumentException("Invalid .dynstr value is null!")
-        }
+    private fun getDependencyLibraryName(): String {
+        return if (dynamicString != null) {
+            val startIndex: Int = d_un.toInt()
+            val endIndex = dynamicString.indexOf('\u0000', startIndex)
+            if (endIndex == -1) {
+                throw IllegalStateException("Invalid dynamic string: missing null terminator at offset $startIndex")
+            }
 
-        val startIndex: Int = offset
-        val endIndex = dynamicString.indexOf('\u0000', startIndex)
-        if (endIndex == -1) {
-            throw IllegalStateException("Invalid dynamic string: missing null terminator at offset $startIndex")
+            dynamicString.substring(startIndex, endIndex)
         }
-
-        return dynamicString.substring(startIndex, endIndex)
+        else {
+            FormatHelpers.toHexString(d_un)
+        }
     }
 
     /**
@@ -312,7 +311,9 @@ data class Elf64_Dyn(
     }
 
     override fun toString(): String {
-        return "Elf64_Dyn(d_tag=${tagString()}" +
-                ", d_un=${unString()})"
+        return "Elf64_Dyn(d_tag=\"${tagString()}\"" +
+                ", d_un=" +
+                "\"${unString()}\"" +
+                ")"
     }
 }

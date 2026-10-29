@@ -1,10 +1,18 @@
 package com.riraki.elfparser
 
+/**
+ * @param r_offset 需要进行重定位的位置
+ * @param r_info 重定位类型（低32位）与符号索引（高32位）
+ * @param r_addend 参与计算的附加常量
+ * @param machine 处理器架构
+ * @param dynamicString .dynstr 节区的字符串，用来获取符号的名称，如果不需要获取那么可以传入 null
+ */
 data class Elf64_Rela(
-    val r_offset: Elf64_Addr,           // 需要进行重定位的位置
-    val r_info: Elf64_Xword,            // 重定位类型（低32位）与符号索引（高32位）
-    val r_addend: Elf64_Sxword,         // 参与计算的附加常量
-    private val machine: ElfMachine     // 处理器架构
+    val r_offset: Elf64_Addr,
+    val r_info: Elf64_Xword,
+    val r_addend: Elf64_Sxword,
+    private val machine: ElfMachine,
+    private val dynamicString: String?
 ) {
     /**
      * typedef struct
@@ -27,8 +35,8 @@ data class Elf64_Rela(
 
     private fun relocationTypeString(): String {
         return when (machine) {
-            ElfMachine.AARCH64 -> relocationTypeStringWithAarch64()
-            ElfMachine.X86_64 -> relocationTypeStringWithX86_64()
+            ElfMachine.EM_AARCH64 -> relocationTypeStringWithAarch64()
+            ElfMachine.EM_X86_64 -> relocationTypeStringWithX86_64()
         }
     }
 
@@ -208,13 +216,33 @@ data class Elf64_Rela(
         }
     }
 
+    /**
+     * 如果 dynamicString 不为 null，那么根据 symbolIndex 获取 dynamic string 中对应的字符串
+     * 如果 dynamicString 为 null，那么返回的将是 symbolIndex 转化成 16 进制数的字符串
+     * @return symbol 对应的字符串
+     */
+    private fun symbolString(): String {
+        return if (dynamicString != null) {
+            val startIndex: Int = symbolIndex().toInt()
+            val endIndex: Int = dynamicString.indexOf('\u0000', startIndex)
+            if (endIndex == -1) {
+                throw IllegalStateException("Invalid dynamic string: missing null terminator at offset $startIndex")
+            }
+            dynamicString.substring(startIndex, endIndex)
+        }
+        else {
+            FormatHelpers.toHexString(symbolIndex())
+        }
+    }
+
     override fun toString(): String {
         return "Elf64_Rela(" +
-                ", r_offset=${FormatHelpers.toHexString(r_offset)}" +
-                ", r_info=0x${FormatHelpers.toHexString(r_info)}" +
-                ", symbolIndex=${symbolIndex()}" +
-                ", relocationType=${relocationType()}(${relocationTypeString()})" +
-                ", r_addend=$r_addend" +
+                "r_offset=${FormatHelpers.toHexString(r_offset)}" +
+                ", r_info=${FormatHelpers.toHexString(r_info)}" +
+                ", symbolIndex=${FormatHelpers.toHexString(symbolIndex())}" +
+                ", symbol=\"${symbolString()}\"" +
+                ", relocationType=${relocationTypeString()}" +
+                ", r_addend=${FormatHelpers.toHexString(r_addend)}" +
                 ")"
     }
 }

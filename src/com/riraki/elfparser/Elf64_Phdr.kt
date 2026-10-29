@@ -71,8 +71,8 @@ data class Elf64_Phdr(
     }
 
     override fun toString(): String {
-        return "Elf64_Phdr(p_type=${typeString()}" +
-                ", p_flags=${flagsString()}" +
+        return "Elf64_Phdr(p_type=\"${typeString()}\"" +
+                ", p_flags=\"${flagsString()}\"" +
                 ", p_offset=$p_offset" +
                 ", p_vaddr=$p_vaddr" +
                 ", p_paddr=$p_paddr" +

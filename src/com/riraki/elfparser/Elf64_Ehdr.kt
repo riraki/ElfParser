@@ -120,6 +120,14 @@ class Elf64_Ehdr {
         }
     }
 
+    fun getElfMachine(): ElfMachine {
+        return when (e_machine.toInt()) {
+            EM_AARCH64 -> ElfMachine.EM_AARCH64
+            EM_X86_64 -> ElfMachine.EM_X86_64
+            else -> throw UnsupportedOperationException("Unsupported elf machine: $e_machine!")
+        }
+    }
+
     @OptIn(ExperimentalUnsignedTypes::class)
     override fun toString(): String {
         return "Elf64_Ehdr(ei_mag=${FormatHelpers.toHexSpaceString(ei_mag)}" +

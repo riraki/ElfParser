@@ -200,6 +200,53 @@ object Elf64Parser {
         }
     }
 
+    fun readRelocationAppendSection(elf64File: File, relaSectionOffset: Elf64_Off, relaSectionSize: Elf64_Xword,
+        relaSectionEntsize: Elf64_Xword): List<Elf64_Rela> {
+        val elf64_ehdr = readElfHeader(elf64File)
+        val dynamicString: String = readDynamicString(elf64File)
+
+        return BufferedInputStream(elf64File.inputStream()).use { inputStream ->
+            inputStream.skipFully(relaSectionOffset.toLong())
+            List((relaSectionSize / relaSectionEntsize).toInt(), { _ ->
+                Elf64_Rela(
+                    ParseUtils.readULongFromInputStream(inputStream),
+                    ParseUtils.readULongFromInputStream(inputStream),
+                    ParseUtils.readLongFromInputStream(inputStream),
+                    elf64_ehdr.getElfMachine(),
+                    dynamicString
+                    )
+            })
+        }
+    }
+
+    fun readRelocationAppendSection(elf64File: File, relaSectionHeader: Elf64_Shdr): List<Elf64_Rela> {
+        if (relaSectionHeader.sh_type != SHT_RELA) {
+            throw IllegalArgumentException("Argument relaSectionHeader.sh_type must be SHT_RELA!")
+        }
+        return readRelocationAppendSection(elf64File, relaSectionHeader.sh_offset,
+            relaSectionHeader.sh_size, relaSectionHeader.sh_entsize)
+    }
+
+    fun readRelocationAppendSections(elf64File: File, relaSectionHeaders: List<Elf64_Shdr>): List<Elf64_Rela> {
+        return buildList {
+            relaSectionHeaders.forEach { relaSectionHeader ->
+                addAll(readRelocationAppendSection(elf64File, relaSectionHeader))
+            }
+        }
+    }
+
+    fun readRelocationAppendSections(elf64File: File): List<Elf64_Rela> {
+        val sectionHeaders: List<Elf64_Shdr> = readSectionHeaders(elf64File)
+        val relaSectionHeaders: List<Elf64_Shdr> = buildList {
+            sectionHeaders.forEach { sectionHeader ->
+                if (sectionHeader.sh_type == SHT_RELA) {
+                    add(sectionHeader)
+                }
+            }
+        }
+        return readRelocationAppendSections(elf64File, relaSectionHeaders)
+    }
+
     /**
     * 确保从流中跳过指定数量的字节数 (n)
     * 如果中途遇到文件末尾（EOF），则抛出 EOFException

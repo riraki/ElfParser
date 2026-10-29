@@ -17,9 +17,12 @@ class Main {
             val elf64_dynsym_sections = Elf64Parser.readDynsymSections(file)
             println(elf64_dynsym_sections)
             val elf64_dynamic_sections = Elf64Parser.readDynamicSections(file)
-            // println(elf64_dynamic_sections)
-            elf64_dynamic_sections.forEach { elf64_dynamic_section ->
-                println(elf64_dynamic_section)
+            println(elf64_dynamic_sections)
+
+            val reloactionAppendSections: List<Elf64_Rela> = Elf64Parser.readRelocationAppendSections(file)
+            // println(reloactionAppendSections)
+            reloactionAppendSections.forEach { reloactionAppendSection ->
+                println(reloactionAppendSection)
             }
 
             // sh_offset=1448, sh_size=72, sh_entsize=24

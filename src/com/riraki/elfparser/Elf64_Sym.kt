@@ -72,8 +72,8 @@ data class Elf64_Sym(
     }
 
     override fun toString(): String {
-        return "Elf64_Sym(st_name='${nameString()}'" +
-                ", st_info='${infoString()}'" +
+        return "Elf64_Sym(st_name=\"${nameString()}\"" +
+                ", st_info=\"${infoString()}\"" +
                 ", st_other=$st_other" +
                 ", st_shndx=$st_shndx" +
                 ", st_value=$st_value" +

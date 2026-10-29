@@ -141,9 +141,9 @@ data class Elf64_Shdr(
     }
 
     override fun toString(): String {
-        return "Elf64_Shdr(sh_name='${nameString()}'" +
-                ", sh_type='${typeString()}'" +
-                ", sh_flags='${flagsString()}'" +
+        return "Elf64_Shdr(sh_name=\"${nameString()}\"" +
+                ", sh_type=\"${typeString()}\"" +
+                ", sh_flags=\"${flagsString()}\"" +
                 ", sh_addr=$sh_addr" +
                 ", sh_offset=$sh_offset" +
                 ", sh_size=$sh_size" +
