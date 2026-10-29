@@ -7,7 +7,7 @@ data class Elf64_Sym(
     val st_shndx: Elf64_Section,            // 符号所属节的索引或特殊索引
     val st_value: Elf64_Addr,               // 符号值，通常用于表示地址或其他符号相关数值
     val st_size: Elf64_Xword,               // 符号对应实体的大小
-    private val dynamicString: String       // elf 文件存放动态符号的名称字符，也就是 .dynsym
+    private val dynamicString: String?      // elf 文件存放动态符号的名称字符，也就是 .dynsym
 ) {
     /**
      * typedef struct
@@ -21,16 +21,22 @@ data class Elf64_Sym(
      * } Elf64_Sym;
      */
 
+    fun getName(): String = nameString()
+
     private fun nameString(): String {
-        val startIndex = st_name.toInt()
-        val endIndex = dynamicString.indexOf('\u0000', startIndex)
+        return if (dynamicString != null) {
+            val startIndex = st_name.toInt()
+            val endIndex = dynamicString.indexOf('\u0000', startIndex)
 
-        if (endIndex == -1) {
-            println(dynamicString)
-            throw IllegalStateException("Invalid string table: missing null terminator at offset $startIndex")
+            if (endIndex == -1) {
+                throw IllegalStateException("Invalid string table: missing null terminator at offset $startIndex")
+            }
+
+            dynamicString.substring(startIndex, endIndex)
         }
-
-        return dynamicString.substring(startIndex, endIndex)
+        else {
+            FormatHelpers.toHexString(st_name)
+        }
     }
 
     private fun infoString(): String {

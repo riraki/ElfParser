@@ -5,14 +5,14 @@ package com.riraki.elfparser
  * @param r_info 重定位类型（低32位）与符号索引（高32位）
  * @param r_addend 参与计算的附加常量
  * @param machine 处理器架构
- * @param dynamicString .dynstr 节区的字符串，用来获取符号的名称，如果不需要获取那么可以传入 null
+ * @param dynsymSections dynsym sections，用来获取符号的名称，如果不需要获取那么可以传入 null
  */
 data class Elf64_Rela(
     val r_offset: Elf64_Addr,
     val r_info: Elf64_Xword,
     val r_addend: Elf64_Sxword,
     private val machine: ElfMachine,
-    private val dynamicString: String?
+    private val dynsymSections: List<Elf64_Sym>?
 ) {
     /**
      * typedef struct
@@ -222,13 +222,8 @@ data class Elf64_Rela(
      * @return symbol 对应的字符串
      */
     private fun symbolString(): String {
-        return if (dynamicString != null) {
-            val startIndex: Int = symbolIndex().toInt()
-            val endIndex: Int = dynamicString.indexOf('\u0000', startIndex)
-            if (endIndex == -1) {
-                throw IllegalStateException("Invalid dynamic string: missing null terminator at offset $startIndex")
-            }
-            dynamicString.substring(startIndex, endIndex)
+        return if (dynsymSections != null) {
+            dynsymSections[symbolIndex().toInt()].getName()
         }
         else {
             FormatHelpers.toHexString(symbolIndex())

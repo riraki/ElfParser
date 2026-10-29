@@ -118,4 +118,42 @@ object ParseUtils {
                     ).toULong()
         }
     }
+
+    @OptIn(ExperimentalUnsignedTypes::class)
+    fun readUBytesFromInputStream(inputStream: InputStream, n: Int): UByteArray {
+        val ubytes = UByteArray(n)
+        readUBytesFromInputStream(inputStream, ubytes)
+        return ubytes
+    }
+
+    @OptIn(ExperimentalUnsignedTypes::class)
+    fun readUBytesFromInputStream(inputStream: InputStream, ubytes: UByteArray) {
+        val byteArray = ByteArray(ubytes.size)
+        inputStream.read(byteArray, 0, ubytes.size)
+        convertBytesToUBytes(byteArray, ubytes)
+    }
+
+    @OptIn(ExperimentalUnsignedTypes::class)
+    fun convertBytesToUBytes(sbytes: ByteArray, sOff: Int, ubytes: UByteArray, uOff: Int, size: Int) {
+        for (i in 0..<size) {
+            ubytes[uOff + i] = sbytes[sOff + i].toUByte()
+        }
+    }
+
+    @OptIn(ExperimentalUnsignedTypes::class)
+    fun convertBytesToUBytes(sbytes: ByteArray, ubytes: UByteArray) {
+        if (sbytes.size == ubytes.size) {
+            convertBytesToUBytes(sbytes, 0, ubytes, 0, sbytes.size)
+        }
+        else {
+            throw IllegalArgumentException("ByteArray size (${sbytes.size}) must match UByteArray size (${ubytes.size})")
+        }
+    }
+
+    @OptIn(ExperimentalUnsignedTypes::class)
+    fun convertBytesToUBytes(sbytes: ByteArray): UByteArray {
+        val ubytes = UByteArray(sbytes.size)
+        convertBytesToUBytes(sbytes, ubytes)
+        return ubytes
+    }
 }

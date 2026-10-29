@@ -69,13 +69,13 @@ class Elf64_Ehdr {
     @OptIn(ExperimentalUnsignedTypes::class)
     constructor(elf64File: File) {
         BufferedInputStream(elf64File.inputStream()).use { inputStream ->
-            readUBytesFromInputStream(inputStream, ei_mag)
+            ParseUtils.readUBytesFromInputStream(inputStream, ei_mag)
             ei_class = inputStream.read().toUByte()
             ei_data = inputStream.read().toUByte()
             ei_version = inputStream.read().toUByte()
             ei_osabi = inputStream.read().toUByte()
             ei_abiversion = inputStream.read().toUByte()
-            readUBytesFromInputStream(inputStream, ei_pad)
+            ParseUtils.readUBytesFromInputStream(inputStream, ei_pad)
             e_type = ParseUtils.readUShortFromInputStream(inputStream)
             e_machine = ParseUtils.readUShortFromInputStream(inputStream)
             e_version = ParseUtils.readUIntFromInputStream(inputStream)
@@ -94,30 +94,6 @@ class Elf64_Ehdr {
 
     companion object {
         private const val EI_NIDENT: Int = 16
-
-        @OptIn(ExperimentalUnsignedTypes::class)
-        private fun readUBytesFromInputStream(inputStream: InputStream, ubytes: UByteArray) {
-            val byteArray: ByteArray = ByteArray(ubytes.size)
-            inputStream.read(byteArray, 0, ubytes.size)
-            convertBytesToUBytes(byteArray, ubytes)
-        }
-
-        @OptIn(ExperimentalUnsignedTypes::class)
-        private fun convertBytesToUBytes(sbytes: ByteArray, sOff: Int, ubytes: UByteArray, uOff: Int, size: Int) {
-            for (i in 0..<size) {
-                ubytes[uOff + i] = sbytes[sOff + i].toUByte()
-            }
-        }
-
-        @OptIn(ExperimentalUnsignedTypes::class)
-        private fun convertBytesToUBytes(sbytes: ByteArray, ubytes: UByteArray) {
-            if (sbytes.size == ubytes.size) {
-                convertBytesToUBytes(sbytes, 0, ubytes, 0, sbytes.size)
-            }
-            else {
-                throw IllegalArgumentException("ByteArray size (${sbytes.size}) must match UByteArray size (${ubytes.size})")
-            }
-        }
     }
 
     fun getElfMachine(): ElfMachine {

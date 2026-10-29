@@ -147,6 +147,7 @@ object Elf64Parser {
             throw IllegalArgumentException("Symbol table section must have SHF_ALLOC flag set.")
         }
 
+        val dynamicString: String = readDynamicString(elf64File)
         return BufferedInputStream(elf64File.inputStream()).use { inputStream ->
             inputStream.skipFully(elf64_shdr.sh_offset.toLong())
 
@@ -158,19 +159,79 @@ object Elf64Parser {
                     ParseUtils.readUShortFromInputStream(inputStream),
                     ParseUtils.readULongFromInputStream(inputStream),
                     ParseUtils.readULongFromInputStream(inputStream),
-                    readDynamicString(elf64File)
+                    dynamicString
                 )
             }
         }
     }
 
-    fun readDynamicSections(elf64File: File): List<Elf64_Dyn> {
+    fun readSymtabSections(elf64File: File, symtabSectionHeader: Elf64_Shdr): List<Elf64_Sym> {
+        // 校验节类型是否为静态符号表
+        if (symtabSectionHeader.sh_type != SHT_SYMTAB) {
+            throw IllegalArgumentException("Invalid section type for .symtab: ${symtabSectionHeader.sh_type}")
+        }
+
+        // 检查名称（如果是通过节头表字符串表获取的名字，可以做个校验，但有时名称也可能为空或被修改）
+        val sectionName = symtabSectionHeader.getName()
+        if (sectionName != ".symtab") {
+            // 注意：有时非标准工具生成的符号表名字可能不叫 .symtab，但只要 sh_type 是 SHT_SYMTAB 就是合法的
+            println("Warning: SHT_SYMTAB section name is '$sectionName', expected '.symtab'")
+        }
+
+        val stringTable: String? = readStringTable(elf64File)
+        return BufferedInputStream(elf64File.inputStream()).use { inputStream ->
+            inputStream.skipFully(symtabSectionHeader.sh_offset.toLong())
+
+            List((symtabSectionHeader.sh_size / symtabSectionHeader.sh_entsize).toInt()) {
+                Elf64_Sym(
+                    ParseUtils.readUIntFromInputStream(inputStream),
+                    inputStream.read().toUByte(),
+                    inputStream.read().toUByte(),
+                    ParseUtils.readUShortFromInputStream(inputStream),
+                    ParseUtils.readULongFromInputStream(inputStream),
+                    ParseUtils.readULongFromInputStream(inputStream),
+                    stringTable
+                )
+            }
+        }
+    }
+
+    fun readSymtabSections(elf64File: File): List<Elf64_Sym> {
         for (elf64_shdr in readSectionHeaders(elf64File)) {
-            if (elf64_shdr.getName() == ".dynamic" && elf64_shdr.sh_type == SHT_DYNAMIC) {
-                return readDynamicSections(elf64File, elf64_shdr)
+            if (/* elf64_shdr.getName() == ".symtab" &&  */elf64_shdr.sh_type == SHT_SYMTAB) {
+                return readSymtabSections(elf64File, elf64_shdr)
             }
         }
         return emptyList()
+    }
+
+    fun readStringTable(elf64File: File, strtabSectionHeader: Elf64_Shdr): String {
+        if (strtabSectionHeader.sh_type != SHT_STRTAB) {
+            throw IllegalArgumentException("Invalid section type for string table: ${strtabSectionHeader.sh_type}")
+        }
+
+        val sectionName = strtabSectionHeader.getName()
+        if (sectionName != ".strtab") {
+            println("Warning: String table section name is '$sectionName', expected '.strtab'")
+        }
+
+        return BufferedInputStream(elf64File.inputStream()).use { inputStream ->
+            inputStream.skipFully(strtabSectionHeader.sh_offset.toLong())
+
+            val size = strtabSectionHeader.sh_size.toInt()
+            val bytes = inputStream.readFully(size)
+
+            String(bytes, Charsets.UTF_8)
+        }
+    }
+
+    fun readStringTable(elf64File: File): String? {
+        for (shdr in readSectionHeaders(elf64File)) {
+            if (shdr.getName() == ".strtab" && shdr.sh_type == SHT_STRTAB) {
+                return readStringTable(elf64File, shdr)
+            }
+        }
+        return null
     }
 
     fun readDynamicSections(elf64File: File, elf64_shdr: Elf64_Shdr): List<Elf64_Dyn> {
@@ -200,10 +261,19 @@ object Elf64Parser {
         }
     }
 
+    fun readDynamicSections(elf64File: File): List<Elf64_Dyn> {
+        for (elf64_shdr in readSectionHeaders(elf64File)) {
+            if (elf64_shdr.getName() == ".dynamic" && elf64_shdr.sh_type == SHT_DYNAMIC) {
+                return readDynamicSections(elf64File, elf64_shdr)
+            }
+        }
+        return emptyList()
+    }
+
     fun readRelocationAppendSection(elf64File: File, relaSectionOffset: Elf64_Off, relaSectionSize: Elf64_Xword,
         relaSectionEntsize: Elf64_Xword): List<Elf64_Rela> {
         val elf64_ehdr = readElfHeader(elf64File)
-        val dynamicString: String = readDynamicString(elf64File)
+        val dynsymSections: List<Elf64_Sym> = readDynsymSections(elf64File)
 
         return BufferedInputStream(elf64File.inputStream()).use { inputStream ->
             inputStream.skipFully(relaSectionOffset.toLong())
@@ -213,7 +283,7 @@ object Elf64Parser {
                     ParseUtils.readULongFromInputStream(inputStream),
                     ParseUtils.readLongFromInputStream(inputStream),
                     elf64_ehdr.getElfMachine(),
-                    dynamicString
+                    dynsymSections
                     )
             })
         }
@@ -247,6 +317,74 @@ object Elf64Parser {
         return readRelocationAppendSections(elf64File, relaSectionHeaders)
     }
 
+    fun readNoteSectionHeaders(elf64File: File): List<Elf64_Shdr> {
+        val sectionHeaders = readSectionHeaders(elf64File)
+        return buildList {
+            sectionHeaders.forEach { sectionHeader ->
+                if (sectionHeader.sh_type == SHT_NOTE) {
+                    add(sectionHeader)
+                }
+            }
+        }
+    }
+
+    /**
+     * 解析单个 Note 节区中的所有 Elf64_Note 条目
+     */
+    fun readNotes(elf64File: File, noteSectionHeader: Elf64_Shdr): List<Elf64_Note> {
+        if (noteSectionHeader.sh_type != SHT_NOTE) {
+            throw IllegalArgumentException("Invalid section type for note section: ${noteSectionHeader.sh_type}")
+        }
+
+        return BufferedInputStream(elf64File.inputStream()).use { inputStream ->
+            inputStream.skipFully(noteSectionHeader.sh_offset.toLong())
+
+            val notes = mutableListOf<Elf64_Note>()
+            var bytesRead = 0L
+            val sectionSize = noteSectionHeader.sh_size.toLong()
+
+            // 循环解析 Note 节区内的所有 Note 条目（可能包含多个）
+            while (bytesRead < sectionSize) {
+                // 读取 12 字节的 Elf64_Nhdr 头部 (3 个 UInt)
+                val n_namesz = ParseUtils.readUIntFromInputStream(inputStream)
+                val n_descsz = ParseUtils.readUIntFromInputStream(inputStream)
+                val n_type = ParseUtils.readUIntFromInputStream(inputStream)
+                bytesRead += 12
+
+                val nhdr = Elf64_Nhdr(n_namesz, n_descsz, n_type)
+
+                // 读取 name 字段（必须向上对齐到 4 字节的倍数）
+                val paddedNamesz = (n_namesz + 3u) and 3u.inv()
+                val nameBytes = inputStream.readFully(paddedNamesz.toInt())
+                bytesRead += paddedNamesz.toLong()
+                val name = String(nameBytes, Charsets.UTF_8).trimEnd('\u0000')
+
+                // 读取 descriptor 描述符字段（必须向上对齐到 4 字节的倍数）
+                val paddedDescsz = (n_descsz + 3u) and 3u.inv()
+                val descBytes = inputStream.readFully(paddedDescsz.toInt())
+                bytesRead += paddedDescsz.toLong()
+
+                // 截取真实的 descsz 长度的描述符内容
+                val actualDesc = descBytes.copyOfRange(0, n_descsz.toInt())
+
+                notes.add(Elf64_Note(nhdr, name, actualDesc))
+            }
+            notes
+        }
+    }
+
+    /**
+     * 自动遍历所有 Note 节区并提取全部 Note 条目
+     */
+    fun readNotes(elf64File: File): List<Elf64_Note> {
+        val noteHeaders = readNoteSectionHeaders(elf64File)
+        return buildList {
+            noteHeaders.forEach { header ->
+                addAll(readNotes(elf64File, header))
+            }
+        }
+    }
+
     /**
     * 确保从流中跳过指定数量的字节数 (n)
     * 如果中途遇到文件末尾（EOF），则抛出 EOFException
@@ -274,5 +412,18 @@ object Elf64Parser {
                 remaining -= skipped
             }
         }
+    }
+
+    private fun InputStream.readFully(n: Int): ByteArray {
+        val buffer = ByteArray(n)
+        var bytesRead = 0
+        while (bytesRead < n) {
+            val retval = read(buffer, bytesRead, n - bytesRead)
+            if (retval == -1) {
+                throw EOFException("Unexpected end of file: expected to read $n bytes, but reached EOF after reading $bytesRead bytes.")
+            }
+            bytesRead += retval
+        }
+        return buffer
     }
 }

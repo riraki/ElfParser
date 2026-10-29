@@ -4,9 +4,14 @@ object FormatHelpers {
     @OptIn(ExperimentalUnsignedTypes::class)
     fun toHexSpaceString(ubytes: UByteArray): String {
         return ubytes.joinToString(", ", "[", "]",
-            transform = { byte ->
-                (byte.toInt() and 0xff).toString(16).padStart(2, '0').uppercase()
+            transform = { ubyte ->
+                (ubyte.toInt() and 0xff).toString(16).padStart(2, '0').uppercase()
             })
+    }
+
+    @OptIn(ExperimentalUnsignedTypes::class)
+    fun toHexSpaceString(bytes: ByteArray): String {
+        return toHexSpaceString(ParseUtils.convertBytesToUBytes(bytes))
     }
 
     fun toHexString(value: Byte): String {
