@@ -1,6 +1,6 @@
 package com.riraki.elfparser
 
-data class Elf64GunHash(
+data class Elf64_GunHash(
     val nbuckets: UInt,
     val symoffset: UInt,
     val bloomSize: UInt,

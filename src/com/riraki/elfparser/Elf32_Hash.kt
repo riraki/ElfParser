@@ -1,12 +1,12 @@
 package com.riraki.elfparser
 
-data class Elf64Hash(
+data class Elf32_Hash(
     val nbucket: UInt,
     val nchain: UInt,
     val buckets: UIntArray,
     val chains: UIntArray
 ) {
-    fun lookupSymbol(name: String, symbols: List<Elf64_Sym>): Elf64_Sym? {
+    fun lookupSymbol(name: String, symbols: List<Elf32_Sym>): Elf32_Sym? {
         val bucketIndex = (elfHash(name) % nbucket).toInt()
         var symbolIndex = buckets[bucketIndex].toInt()
 

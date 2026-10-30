@@ -6,6 +6,21 @@ import kotlin.toUInt
 import kotlin.toUShort
 
 object ParseUtils {
+    fun readShortFromInputStream(inputStream: InputStream, littleEndian: Boolean = true): Short {
+        val b1 = inputStream.read()
+        val b2 = inputStream.read()
+        if (b1 == -1 || b2 == -1) {
+            throw EOFException("Reached end of stream while reading Short")
+        }
+
+        return if (littleEndian) {
+            ((b1 and 0xff) or ((b2 and 0xff) shl 8)).toShort()
+        }
+        else {
+            ((b2 and 0xff) or ((b1 and 0xff) shl 8)).toShort()
+        }
+    }
+
     fun readUShortFromInputStream(inputStream: InputStream, littleEndian: Boolean = true): UShort {
         val b1 = inputStream.read()
         val b2 = inputStream.read()
@@ -18,6 +33,30 @@ object ParseUtils {
         }
         else {
             ((b2 and 0xff) or ((b1 and 0xff) shl 8)).toUShort()
+        }
+    }
+
+    fun readIntFromInputStream(inputStream: InputStream, littleEndian: Boolean = true): Int {
+        val b1 = inputStream.read()
+        val b2 = inputStream.read()
+        val b3 = inputStream.read()
+        val b4 = inputStream.read()
+        if (b1 == -1 || b2 == -1 || b3 == -1 || b4 == -1) {
+            throw EOFException("Reached end of stream while reading Int")
+        }
+        return if (littleEndian) {
+            ((b1 and 0xff)
+                    or ((b2 and 0xff) shl 8)
+                    or ((b3 and 0xff) shl 16)
+                    or ((b4 and 0xff) shl 24)
+                    )
+        }
+        else {
+            ((b4 and 0xff)
+                    or ((b3 and 0xff) shl 8)
+                    or ((b2 and 0xff) shl 16)
+                    or ((b1 and 0xff) shl 24)
+                    )
         }
     }
 

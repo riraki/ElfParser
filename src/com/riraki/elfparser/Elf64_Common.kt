@@ -27,7 +27,9 @@ typealias Elf64_Sxword = Long
 // 这个用来区分不同处理器的情况
 enum class ElfMachine{
     EM_AARCH64,
-    EM_X86_64
+    EM_X86_64,
+    EM_ARM,
+    EM_386,
 }
 
 
@@ -35,6 +37,8 @@ enum class ElfMachine{
 /* Legal values for e_machine (architecture).  */
 const val EM_AARCH64 = 183                  /* ARM AARCH64 */
 const val EM_X86_64 =62                     /* AMD x86-64 architecture */
+const val EM_ARM = 40                       /* ARM 32-bit architecture */
+const val EM_386 = 3                        /* Intel 80386 architecture */
 
 
 
