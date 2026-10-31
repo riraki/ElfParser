@@ -32,22 +32,22 @@ class ElfGnuHashSection : ElfSection {
         BufferedInputStream(elfFile.file.inputStream()).use {
             InputStreamHelpers.skipFully(it, gnuHashSectionHeader.sh_offset.toLong())
 
-            nbucket = InputStreamHelpers.readUInt(it, elfFile.elfHeader.isLittleEndian())
-            symoffset = InputStreamHelpers.readUInt(it, elfFile.elfHeader.isLittleEndian())
-            bloom_size = InputStreamHelpers.readUInt(it, elfFile.elfHeader.isLittleEndian())
-            bloom_shift = InputStreamHelpers.readUInt(it, elfFile.elfHeader.isLittleEndian())
-            bloom = ElfParserHelpers.readIntOrLongArray(it, bloom_size.toInt(), elfFile.elfHeader.is32Bits(), elfFile.elfHeader.isLittleEndian())
-            buckets = InputStreamHelpers.readIntArrayFully(it, nbucket.toInt(), elfFile.elfHeader.isLittleEndian())
+            nbucket = InputStreamHelpers.readUInt(it, elfFile.isLittleEndian)
+            symoffset = InputStreamHelpers.readUInt(it, elfFile.isLittleEndian)
+            bloom_size = InputStreamHelpers.readUInt(it, elfFile.isLittleEndian)
+            bloom_shift = InputStreamHelpers.readUInt(it, elfFile.isLittleEndian)
+            bloom = ElfParserHelpers.readIntOrLongArray(it, bloom_size.toInt(), elfFile.is32Bits, elfFile.isLittleEndian)
+            buckets = InputStreamHelpers.readIntArrayFully(it, nbucket.toInt(), elfFile.isLittleEndian)
             // remember that chains' indexes are shifted by symoffset relatively to the symbol table
             // chainSize = symbols.size - symoffset
             if (symoffset > symbolCount) {
                 throw IllegalStateException("Invalid GNU Hash symoffset: $symoffset!")
             }
             chainSize = symbolCount - symoffset
-            chain = InputStreamHelpers.readIntArrayFully(it, chainSize.toInt(), elfFile.elfHeader.isLittleEndian())
+            chain = InputStreamHelpers.readIntArrayFully(it, chainSize.toInt(), elfFile.isLittleEndian)
         }
 
-        ELFCLASS_BITS = if (elfFile.elfHeader.is32Bits()) {
+        ELFCLASS_BITS = if (elfFile.is32Bits) {
             32u
         }
         else {

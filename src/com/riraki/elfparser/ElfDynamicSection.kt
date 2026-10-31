@@ -14,8 +14,8 @@ class ElfDynamicSection(
             InputStreamHelpers.skipFully(inputStream, dynamicSectionHeader.sh_offset.toLong())
             Array((dynamicSectionHeader.sh_size / dynamicSectionHeader.sh_entsize).toInt()) {
                 ElfDynamicStructure(
-                    ElfParserHelpers.readIntOrLong(inputStream, elfFile.elfHeader.is32Bits(), elfFile.elfHeader.isLittleEndian()),
-                    ElfParserHelpers.readUIntOrULong(inputStream, elfFile.elfHeader.is32Bits(), elfFile.elfHeader.isLittleEndian()),
+                    ElfParserHelpers.readIntOrLong(inputStream, elfFile.is32Bits, elfFile.isLittleEndian),
+                    ElfParserHelpers.readUIntOrULong(inputStream, elfFile.is32Bits, elfFile.isLittleEndian),
                     stringTable
                 )
             }

@@ -15,8 +15,8 @@ class ElfProgramHeader {
 
     constructor(elfFile: ElfFile, offset: ULong) {
         val file: File = elfFile.file
-        val is32Bits = elfFile.elfHeader.is32Bits()
-        val isLittleEndian = elfFile.elfHeader.isLittleEndian()
+        val is32Bits = elfFile.is32Bits
+        val isLittleEndian = elfFile.isLittleEndian
         BufferedInputStream(file.inputStream()).use {
             InputStreamHelpers.skipFully(it, offset.toLong())
             if (is32Bits) {

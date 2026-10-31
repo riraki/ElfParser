@@ -16,10 +16,10 @@ class ElfHashSection : ElfSection {
 
     constructor(elfFile: ElfFile, hashSectionHeader: ElfSectionHeader) : super(elfFile, hashSectionHeader) {
         BufferedInputStream(elfFile.file.inputStream()).use {
-            nbucket = InputStreamHelpers.readUInt(it, elfFile.elfHeader.isLittleEndian())
-            nchain = InputStreamHelpers.readUInt(it, elfFile.elfHeader.isLittleEndian())
-            buckets = InputStreamHelpers.readIntArrayFully(it, nbucket.toInt(), elfFile.elfHeader.isLittleEndian())
-            chains = InputStreamHelpers.readIntArrayFully(it, nchain.toInt(), elfFile.elfHeader.isLittleEndian())
+            nbucket = InputStreamHelpers.readUInt(it, elfFile.isLittleEndian)
+            nchain = InputStreamHelpers.readUInt(it, elfFile.isLittleEndian)
+            buckets = InputStreamHelpers.readIntArrayFully(it, nbucket.toInt(), elfFile.isLittleEndian)
+            chains = InputStreamHelpers.readIntArrayFully(it, nchain.toInt(), elfFile.isLittleEndian)
         }
     }
 

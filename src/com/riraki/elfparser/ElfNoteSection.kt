@@ -22,9 +22,9 @@ class ElfNoteSection(
                     throw EOFException("Incomplete ElfNoteStructure at end of NOTE section")
                 }
                 // 读取 12 字节的 ElfNoteHeader 头部 (3 个 UInt)
-                val n_namesz = InputStreamHelpers.readUInt(it, elfFile.elfHeader.isLittleEndian())
-                val n_descsz = InputStreamHelpers.readUInt(it, elfFile.elfHeader.isLittleEndian())
-                val n_type = InputStreamHelpers.readUInt(it, elfFile.elfHeader.isLittleEndian())
+                val n_namesz = InputStreamHelpers.readUInt(it, elfFile.isLittleEndian)
+                val n_descsz = InputStreamHelpers.readUInt(it, elfFile.isLittleEndian)
+                val n_type = InputStreamHelpers.readUInt(it, elfFile.isLittleEndian)
                 bytesRead += 12
 
                 val noteHeader = ElfNoteHeader(n_namesz, n_descsz, n_type)

@@ -57,36 +57,34 @@ class ElfHeader {
             ei_abiversion = InputStreamHelpers.readCheckedByte(it).toUByte()
             ei_pad = InputStreamHelpers.readByteArrayFully(it, 6)
             ei_nident = InputStreamHelpers.readCheckedByte(it).toUByte()
-            e_type = InputStreamHelpers.readUShort(it, isLittleEndian())
-            e_machine = InputStreamHelpers.readUShort(it, isLittleEndian())
-            e_version = InputStreamHelpers.readUInt(it, isLittleEndian())
+            e_type = InputStreamHelpers.readUShort(it, isLittleEndian)
+            e_machine = InputStreamHelpers.readUShort(it, isLittleEndian)
+            e_version = InputStreamHelpers.readUInt(it, isLittleEndian)
             // 如果是 32 位文件就读取 UInt 长度的数据，否则读取 ULong 长度的数据
-            e_entry = ElfParserHelpers.readUIntOrULong(it, is32Bits(), isLittleEndian())
-            e_phoff = ElfParserHelpers.readUIntOrULong(it, is32Bits(), isLittleEndian())
-            e_shoff = ElfParserHelpers.readUIntOrULong(it, is32Bits(), isLittleEndian())
-            e_flags = InputStreamHelpers.readUInt(it, isLittleEndian())
-            e_ehsize = InputStreamHelpers.readUShort(it, isLittleEndian())
-            e_phentsize = InputStreamHelpers.readUShort(it, isLittleEndian())
-            e_phnum = InputStreamHelpers.readUShort(it, isLittleEndian())
-            e_shentsize = InputStreamHelpers.readUShort(it, isLittleEndian())
-            e_shnum = InputStreamHelpers.readUShort(it, isLittleEndian())
-            e_shstrndx = InputStreamHelpers.readUShort(it, isLittleEndian())
+            e_entry = ElfParserHelpers.readUIntOrULong(it, is32Bits, isLittleEndian)
+            e_phoff = ElfParserHelpers.readUIntOrULong(it, is32Bits, isLittleEndian)
+            e_shoff = ElfParserHelpers.readUIntOrULong(it, is32Bits, isLittleEndian)
+            e_flags = InputStreamHelpers.readUInt(it, isLittleEndian)
+            e_ehsize = InputStreamHelpers.readUShort(it, isLittleEndian)
+            e_phentsize = InputStreamHelpers.readUShort(it, isLittleEndian)
+            e_phnum = InputStreamHelpers.readUShort(it, isLittleEndian)
+            e_shentsize = InputStreamHelpers.readUShort(it, isLittleEndian)
+            e_shnum = InputStreamHelpers.readUShort(it, isLittleEndian)
+            e_shstrndx = InputStreamHelpers.readUShort(it, isLittleEndian)
         }
     }
 
     /**
      * 判断当前 ELF 文件是否为小端序 (Little-Endian)
      */
-    fun isLittleEndian(): Boolean {
-        return ei_data.toInt() == ELFDATA2LSB
-    }
+    val isLittleEndian: Boolean
+        get() = ei_data.toInt() == ELFDATA2LSB
 
     /**
      * 判断当前 ELF 文件是否为大端序 (Big-Endian)
      */
-    fun isBigEndian(): Boolean {
-        return ei_data.toInt() == ELFDATA2MSB
-    }
+    val isBigEndian: Boolean
+        get() = ei_data.toInt() == ELFDATA2MSB
 
     /**
      * 在解析 ELF Header 的初期调用，用来提前拦截非法字节序的文件
@@ -101,16 +99,14 @@ class ElfHeader {
     /**
      * 判断是否为 32 位文件
      */
-    fun is32Bits(): Boolean {
-        return ei_class.toInt() == ELFCLASS32
-    }
+    val is32Bits: Boolean
+        get() = ei_class.toInt() == ELFCLASS32
 
     /**
      * 判断是否为 64 位文件
      */
-    fun is64Bits(): Boolean {
-        return ei_class.toInt() == ELFCLASS64
-    }
+    val is64Bits: Boolean
+        get() = ei_class.toInt() == ELFCLASS64
 
     /**
      * 在解析 ELF Header 的初期调用，用来提前拦截非法的文件

@@ -13,9 +13,9 @@ class ElfRelocationAppend {
     constructor(elfFile: ElfFile, relocationAppendOffset: ULong, symbolTable: ElfSymbolTableSection?) {
         BufferedInputStream(elfFile.file.inputStream()).use {
             InputStreamHelpers.skipFully(it, relocationAppendOffset.toLong())
-            r_offset = ElfParserHelpers.readUIntOrULong(it, elfFile.elfHeader.is32Bits(), elfFile.elfHeader.isLittleEndian())
-            r_info = ElfParserHelpers.readUIntOrULong(it, elfFile.elfHeader.is32Bits(), elfFile.elfHeader.isLittleEndian())
-            r_addend = ElfParserHelpers.readIntOrLong(it, elfFile.elfHeader.is32Bits(), elfFile.elfHeader.isLittleEndian())
+            r_offset = ElfParserHelpers.readUIntOrULong(it, elfFile.is32Bits, elfFile.isLittleEndian)
+            r_info = ElfParserHelpers.readUIntOrULong(it, elfFile.is32Bits, elfFile.isLittleEndian)
+            r_addend = ElfParserHelpers.readIntOrLong(it, elfFile.is32Bits, elfFile.isLittleEndian)
         }
 
         mElfFile = elfFile
@@ -27,7 +27,7 @@ class ElfRelocationAppend {
      */
     val relocationType: UInt
         get() {
-            return if (mElfFile.elfHeader.is32Bits()) {
+            return if (mElfFile.is32Bits) {
                 (r_info and 0xFFu).toUInt()
             }
             else {
@@ -40,7 +40,7 @@ class ElfRelocationAppend {
      */
     val symbolIndex: UInt
         get() {
-            return if (mElfFile.elfHeader.is32Bits()) {
+            return if (mElfFile.is32Bits) {
                 (r_info shr 8).toUInt()
             }
             else {

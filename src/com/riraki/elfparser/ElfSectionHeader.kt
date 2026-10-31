@@ -19,8 +19,8 @@ class ElfSectionHeader {
 
     constructor(elfFile: ElfFile, offset: ULong, stringTable: ElfStringTableSection?) {
         val file: File = elfFile.file
-        val isLittleEndian = elfFile.elfHeader.isLittleEndian()
-        val is32Bits = elfFile.elfHeader.is32Bits()
+        val isLittleEndian = elfFile.isLittleEndian
+        val is32Bits = elfFile.is32Bits
         BufferedInputStream(file.inputStream()).use {
             InputStreamHelpers.skipFully(it, offset.toLong())
             sh_name = InputStreamHelpers.readUInt(it, isLittleEndian)

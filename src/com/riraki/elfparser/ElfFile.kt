@@ -57,6 +57,18 @@ class ElfFile {
             ?: throw IllegalArgumentException("Index ${elfHeader.e_shstrndx} is not an ElfStringTable")
     }
 
+    val isLittleEndian: Boolean
+        get() = elfHeader.isLittleEndian
+
+    val isBigEndian: Boolean
+        get() = elfHeader.isBigEndian
+
+    val is32Bits: Boolean
+        get() = elfHeader.is32Bits
+
+    val is64Bits: Boolean
+        get() = elfHeader.is64Bits
+
     private constructor(file: File) {
         this.file = file
     }
