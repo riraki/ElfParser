@@ -38,6 +38,9 @@ class ElfSectionHeader {
         this.mStringTable = stringTable
     }
 
+    val name: String
+        get() = nameDescription
+
     val nameDescription: String
         get() {
             return mStringTable?.getString(sh_name.toInt()) ?: FormatHelpers.toHexString(sh_name)

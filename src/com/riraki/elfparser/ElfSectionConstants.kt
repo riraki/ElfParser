@@ -62,4 +62,36 @@ object ElfSectionConstants {
     const val SHF_GNU_RETAIN = 0x200000UL       /* Not to be GCed by linker.  */
     const val SHF_ORDERED = 0x40000000UL        /* Special ordering requirement (Solaris).  */
     const val SHF_EXCLUDE = 0x80000000UL        /* Section is excluded unless referenced or allocated (Solaris).*/
+
+
+
+    // Section name string
+    const val NAME_NULL: String = '\u0000'.toString()
+    const val NAME_NOTE_ANDROID_IDENT: String = ".note.android.ident"
+    const val NAME_NOTE_GNU_BUILD_ID: String = ".note.gnu.build-id"
+    const val NAME_DYNSYM: String = ".dynsym"
+    const val NAME_GNU_VERSION: String = ".gnu.version"
+    const val NAME_GNU_VERSION_R: String = ".gnu.version_r"
+    const val NAME_HASH: String = ".hash"
+    const val NAME_GNU_HASH: String = ".gnu.hash"
+    const val NAME_DYNSTR: String = ".dynstr"
+    const val NAME_RELA_DYN: String = ".rela.dyn"
+    const val NAME_RELA_PLT: String = ".rela.plt"
+    const val NAME_RODATA: String = ".rodata"
+    const val NAME_EH_FRAME_HDR: String = ".eh_frame_hdr"
+    const val NAME_EH_FRAME: String = ".eh_frame"
+    const val NAME_TEXT: String = ".text"
+    const val NAME_PLT: String = ".plt"
+    const val NAME_DATA_REL_RO: String = ".data.rel.ro"
+    const val NAME_FINI_ARRAY: String = ".fini_array"
+    const val NAME_INIT_ARRAY: String = ".init_array"
+    const val NAME_DYNAMIC: String = ".dynamic"
+    const val NAME_GOT: String = ".got"
+    const val NAME_GOT_PLT: String = ".got.plt"
+    const val NAME_DATA: String = ".data"
+    const val NAME_COMMENT: String = ".comment"
+    const val NAME_SYMTAB: String = ".symtab"
+    const val NAME_SHSTRTAB: String = ".shstrtab"
+    const val NAME_STRTAB: String = ".strtab"
+    const val NAME_GNU_DEBUGLINK: String = ".gnu_debuglink"
 }

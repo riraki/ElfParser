@@ -43,3 +43,5 @@ Java_com_riraki_nativetest_MainActivity_00024Companion_md5(JNIEnv* env, jobject 
     env->DeleteLocalRef(result_bytes);
     return result;
 }
+
+

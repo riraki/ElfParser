@@ -4,6 +4,7 @@ class ElfSymbolTableSection(
     elfFile: ElfFile,
     symbolTableSectionHeader: ElfSectionHeader
 ) : ElfSection(elfFile, symbolTableSectionHeader) {
+
     val symbols: Array<ElfSymbol> by lazy {
         Array((symbolTableSectionHeader.sh_size / symbolTableSectionHeader.sh_entsize).toInt()) {
             ElfSymbol(
@@ -15,7 +16,7 @@ class ElfSymbolTableSection(
     }
 
     fun getString(index: Int): String {
-        return symbols[index].nameDescription
+        return symbols[index].name
     }
 
     override fun toString(): String {
