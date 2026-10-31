@@ -11,7 +11,7 @@ object FormatHelpers {
 
     @OptIn(ExperimentalUnsignedTypes::class)
     fun toHexSpaceString(bytes: ByteArray): String {
-        return toHexSpaceString(ParseUtils.convertBytesToUBytes(bytes))
+        return toHexSpaceString(ElfParserHelpers.convertBytesToUBytes(bytes))
     }
 
     fun toHexString(value: Byte): String {
