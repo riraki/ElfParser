@@ -52,10 +52,32 @@ class ElfFile {
         )
     }
 
-    fun getStringTable(): ElfStringTableSection {
-        return sections[elfHeader.e_shstrndx.toInt()] as? ElfStringTableSection
-            ?: throw IllegalArgumentException("Index ${elfHeader.e_shstrndx} is not an ElfStringTable")
-    }
+    val stringTable: ElfStringTableSection
+        get() {
+            return sections[elfHeader.e_shstrndx.toInt()] as? ElfStringTableSection
+                ?: throw IllegalArgumentException("Index ${elfHeader.e_shstrndx} is not an ElfStringTable")
+        }
+
+    val dynamicStringTable: ElfStringTableSection?
+        get() = sections.firstOrNull { it.type == ElfSectionConstants.SHT_STRTAB
+                && it.name == ElfSectionConstants.NAME_DYNSTR }
+            ?.let { ElfStringTableSection(this, it.sectionHeader) }
+
+    val dynamicSymbolTableSection: ElfSymbolTableSection?
+        get() = sections.firstOrNull { it.type == ElfSectionConstants.SHT_DYNSYM }
+            ?.let { ElfSymbolTableSection(this, it.sectionHeader) }
+
+    val symbolTableSection: ElfSymbolTableSection?
+        get() = sections.firstOrNull { it.type == ElfSectionConstants.SHT_SYMTAB }
+            ?.let { ElfSymbolTableSection(this, it.sectionHeader) }
+
+    val dynamicSection: ElfDynamicSection?
+        get() = sections.firstOrNull { it.type == ElfSectionConstants.SHT_DYNAMIC }
+            ?.let { ElfDynamicSection(this, it.sectionHeader) }
+
+    val allSymbols: Array<ElfSymbol>
+        get() = (dynamicSymbolTableSection?.symbols ?: emptyArray()) +
+                (symbolTableSection?.symbols ?: emptyArray())
 
     val isLittleEndian: Boolean
         get() = elfHeader.isLittleEndian
@@ -68,6 +90,28 @@ class ElfFile {
 
     val is64Bits: Boolean
         get() = elfHeader.is64Bits
+
+    fun getSection(index: Int): ElfSection = sections[index]
+
+    fun getSections(sectionType: UInt): Array<ElfSection> =
+        sections.filter { it.type == sectionType }.toTypedArray()
+
+    fun getSections(type: Class<*>): Array<ElfSection> {
+        return buildList {
+            for (section in sections) {
+                if (type.isInstance(section)) {
+                    add(section)
+                }
+            }
+        }.toTypedArray()
+    }
+
+    fun getSymbol(symbolName: String): ElfSymbol? = allSymbols.firstOrNull { it.name == symbolName }
+
+    fun getProgramHeader(index: Int): ElfProgramHeader = programHeaders[index]
+
+    fun getProgramHeader(programHeaderType: UInt): Array<ElfProgramHeader> =
+        programHeaders.filter { it.p_type == programHeaderType }.toTypedArray()
 
     private constructor(file: File) {
         this.file = file

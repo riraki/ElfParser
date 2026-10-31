@@ -15,7 +15,7 @@ class ElfSymbolTableSection(
     }
 
     fun getString(index: Int): String {
-        return symbols[index].nameDescription
+        return symbols[index].name
     }
 
     override fun toString(): String {
